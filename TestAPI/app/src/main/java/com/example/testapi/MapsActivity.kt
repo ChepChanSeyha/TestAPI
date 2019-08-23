@@ -27,8 +27,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.IOException
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
-    GoogleMap.OnMarkerClickListener {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -64,11 +63,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
         }
 
         createLocationRequest()
-
-        val fab = findViewById<FloatingActionButton>(R.id.fab)
-        fab.setOnClickListener {
-            loadPlacePicker()
-        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -105,7 +99,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
         setUpMap()
     }
 
-    override fun onMarkerClick(p0: Marker?) = false
+    override fun onMarkerClick(p0: Marker?) = true
 
     private fun setUpMap() {
         if (ActivityCompat.checkSelfPermission(this,
@@ -132,32 +126,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
     private fun placeMarkerOnMap(location: LatLng) {
         val markerOptions = MarkerOptions().position(location)
 
-        val titleStr = getAddress(location)  // add these two lines
-        markerOptions.title(titleStr)
-
         map.addMarker(markerOptions)
-    }
-
-    private fun getAddress(latLng: LatLng): String {
-        // 1
-        val geocoder = Geocoder(this)
-        val addresses: List<Address>?
-        val address: Address?
-        var addressText = ""
-
-        try {
-            addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
-            if (null != addresses && addresses.isNotEmpty()) {
-                address = addresses[0]
-                for (i in 0 until address.maxAddressLineIndex) {
-                    addressText += if (i == 0) address.getAddressLine(i) else "\n" + address.getAddressLine(i)
-                }
-            }
-        } catch (e: IOException) {
-            Log.e("MapsActivity", e.toString())
-        }
-
-        return addressText
     }
 
     private fun startLocationUpdates() {
@@ -197,18 +166,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
                     // Ignore the error.
                 }
             }
-        }
-    }
-
-    private fun loadPlacePicker() {
-        val builder =  IntentBuilder()
-
-        try {
-            startActivityForResult(builder.build(this@MapsActivity), PLACE_PICKER_REQUEST)
-        } catch (e: GooglePlayServicesRepairableException) {
-            e.printStackTrace()
-        } catch (e: GooglePlayServicesNotAvailableException) {
-            e.printStackTrace()
         }
     }
 }
